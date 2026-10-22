@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JARVIS V2 — Intelligent Personal AI Operating Layer</title>
+  <link rel="stylesheet" href="/static/style.css?v=2.0.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body data-theme="cyan">
+  <!-- Ambient Deep Background Canvas & Atmospheric Vignette -->
+  <canvas id="ambient-canvas" class="ambient-canvas"></canvas>
+  <div class="hologram-vignette"></div>
+
+  <!-- Primary Application Shell -->
+  <div class="app-container">
+
+    <!-- ====================================================================
+         1. COLLAPSIBLE DESKTOP & MOBILE SIDEBAR
+         ==================================================================== -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <!-- Brand Identity Header -->
+      <div class="sidebar-header">
+        <div class="brand-identity" id="brand-home-btn" title="JARVIS V2 Core">
+          <div class="brand-icon-wrap">
+            <div class="brand-reactor-core"></div>
+          </div>
+          <div class="brand-text-block">
+            <span class="brand-title">JARVIS <span class="badge-v2">V2.0</span></span>
+            <span class="brand-sub">Neural AI Operating Layer</span>
+          </div>
+        </div>
+        <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Collapse / Expand Sidebar (Ctrl+B)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation Workspaces -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Core Workspaces</div>
+
+        <a class="nav-item active" data-view="dashboard" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+
+        <a class="nav-item" data-view="chat" id="nav-chat">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">AI Chat</span>
+          <span class="nav-badge" id="chat-badge">Live</span>
+        </a>
+
+        <a class="nav-item" data-view="voice" id="nav-voice">
+          <span class="nav-icon">🎙️</span>
+          <span class="nav-label">Voice Assistant</span>
+        </a>
+
+        <div class="nav-section-label">Automation & Ops</div>
+
+        <a class="nav-item" data-view="tasks" id="nav-tasks">
+          <span class="nav-icon">⚡</span>
+          <span class="nav-label">Tasks & Automation</span>
+          <span class="nav-badge" id="pending-tasks-badge" style="display:none;">0</span>
+        </a>
+
+        <a class="nav-item" data-view="projects" id="nav-projects">
+          <span class="nav-icon">📁</span>
+          <span class="nav-label">Projects & Files</span>
+        </a>
+
+        <a class="nav-item" data-view="memory" id="nav-memory">
+          <span class="nav-icon">🧠</span>
+          <span class="nav-label">Memory Store</span>
+        </a>
+
+        <div class="nav-section-label">Platform & Control</div>
+
+        <a class="nav-item" data-view="tools" id="nav-tools">
+          <span class="nav-icon">🛠️</span>
+          <span class="nav-label">Connected Tools</span>
+        </a>
+
+        <a class="nav-item" data-view="history" id="nav-history">
+          <span class="nav-icon">📜</span>
+          <span class="nav-label">Activity History</span>
+        </a>
+
+        <a class="nav-item" data-view="settings" id="nav-settings">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label">Settings</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer User Profile -->
+      <div class="sidebar-footer">
+        <div class="user-profile-card" id="user-profile-btn" title="View Operator Profile">
+          <div class="user-avatar" id="sidebar-user-avatar">M</div>
+          <div class="user-info-text">
+            <div class="user-name-label" id="sidebar-user-name">Mahi</div>
+            <div class="user-role-label">System Operator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         2. MAIN WRAPPER (TOPNAV + WORKSPACES)
+         ==================================================================== -->
+    <div class="main-wrapper">
+
+      <!-- Top Navigation Bar -->
+      <header class="app-topnav">
+        <div class="topnav-left">
+          <button class="mobile-menu-toggle" id="mobile-menu-toggle" title="Open Menu">
+            ☰
+          </button>
+          <div class="view-breadcrumb">
+            <span class="view-breadcrumb-title" id="breadcrumb-title">Command Dashboard</span>
+            <span class="view-breadcrumb-sub" id="breadcrumb-sub">Neural Operating Overview & Real-Time Telemetry</span>
+          </div>
+        </div>
+
+        <!-- Global Search / Quick Directive Input -->
+        <div class="topnav-search">
+          <span class="search-icon-left">🔍</span>
+          <input 
+            type="text" 
+            class="search-input-pill" 
+            id="global-search-input" 
+            placeholder="Search tools, projects, or command JARVIS..." 
+            autocomplete="off" 
+          />
+          <span class="search-shortcut-badge">Ctrl+K</span>
+        </div>
+
+        <!-- TopNav Right Actions -->
+        <div class="topnav-right">
+          <!-- Backend System Health Status Badge -->
+          <div class="system-status-pill" id="system-status-badge" title="FastAPI Backend Health Status">
+            <span class="status-dot-pulse" id="status-dot"></span>
+            <span id="status-text">SYSTEM ONLINE (3ms)</span>
+          </div>
+
+          <!-- Top Voice Command Mic Toggle -->
+          <button class="topnav-action-btn" id="top-mic-btn" title="Toggle Direct Voice Assistant">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+          </button>
+
+          <!-- Vision Upload Button -->
+          <button class="topnav-action-btn" id="top-vision-btn" title="Multimodal Optical Vision Analysis">
+            <span>📷</span>
+          </button>
+
+          <!-- Notifications Button -->
+          <button class="topnav-action-btn" id="notifications-btn" title="View Telemetry Event Notifications">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="btn-counter-badge" id="notifications-count">2</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Viewport: 9 Active Workspaces -->
+      <main class="view-viewport" id="view-viewport">
+
+        <!-- ================================================================
+             WORKSPACE 1: COMMAND DASHBOARD
+             ================================================================ -->
+        <section class="workspace-view active" id="view-dashboard">
+          <div class="dashboard-grid">
+
+            <!-- Hero Welcome & Directive Banner -->
+            <div class="dashboard-hero-card">
+              <div class="hero-tagline">JARVIS V2 // INTELLIGENT AI OPERATING LAYER</div>
+              <h1 class="hero-greeting" id="hero-greeting-text">Welcome back, Mahi.</h1>
+              <p class="hero-description">
+                Autonomous agent orchestrator active with 11-step execution pipeline, 3-tier safety gatekeeper, real-time hardware telemetry, and local intelligence.
+              </p>
+
+              <!-- Central Hero Command Bar -->
+              <form class="hero-command-bar" id="hero-command-form">
+                <input 
+                  type="text" 
+                  class="hero-command-input" 
+                  id="hero-command-input" 
+                  placeholder="Direct JARVIS: e.g. 'Set volume to 50%', 'Open Chrome', 'What is my battery?', 'Explain photosynthesis'..." 
+                  autocomplete="off" 
+                />
+                <button type="submit" class="btn-primary" id="hero-submit-btn">
+                  <span>Execute</span> ↗
+                </button>
+              </form>
+            </div>
+
+            <!-- Real-Time Hardware Telemetry Metrics -->
+            <div class="telemetry-stats-row">
+              <div class="stat-metric-card">
+                <div class="stat-metric-header">
+                  <span>CPU Load</span>
+                  <span id="metric-cpu-name">Core Processor</span>
+                </div>
+                <div class="stat-metric-value" id="metric-cpu-val">28%</div>
+                <div class="stat-progress-bar-wrap">
+                  <div class="stat-progress-bar-fill" id="metric-cpu-bar" style="width: 28%;"></div>
+                </div>
+              </div>
+
+              <div class="stat-metric-card">
+                <div class="stat-metric-header">
+                  <span>Memory (RAM)</span>
+                  <span id="metric-ram-total">16 GB Total</span>
+                </div>
+                <div class="stat-metric-value" id="metric-ram-val">8.2 GB Used</div>
+                <div class="stat-progress-bar-wrap">
+                  <div class="stat-progress-bar-fill" id="metric-ram-bar" style="width: 51%;"></div>
+                </div>
+              </div>
+
+              <div class="stat-metric-card">
+                <div class="stat-metric-header">
+                  <span>Laptop Battery</span>
+                  <span id="metric-battery-status">Discharging</span>
+                </div>
+                <div class="stat-metric-value" id="metric-battery-val">--%</div>
+                <div class="stat-progress-bar-wrap">
+                  <div class="stat-progress-bar-fill" id="metric-battery-bar" style="width: 80%;"></div>
+                </div>
+              </div>
+
+              <div class="stat-metric-card">
+                <div class="stat-metric-header">
+                  <span>Safety Gatekeeper</span>
+                  <span>3-Tier Architecture</span>
+                </div>
+                <div class="stat-metric-value" style="color: var(--status-emerald);">ACTIVE & SECURE</div>
+                <div class="stat-progress-bar-wrap">
+                  <div class="stat-progress-bar-fill" style="width: 100%; background: var(--status-emerald);"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Action Cards Grid -->
+            <div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+                Instant Launchpad & Assistant Directives
+              </div>
+              <div class="quick-actions-grid">
+                <div class="action-tile-btn" onclick="executeQuickAction('open chrome')">
+                  <div class="action-tile-icon">🌐</div>
+                  <div class="action-tile-title">Launch Chrome</div>
+                  <div class="action-tile-desc">Natively open Google Chrome browser</div>
+                </div>
+
+                <div class="action-tile-btn" onclick="executeQuickAction('battery status')">
+                  <div class="action-tile-icon">🔋</div>
+                  <div class="action-tile-title">Battery Diagnostic</div>
+                  <div class="action-tile-desc">Inspect live charge level and AC power</div>
+                </div>
+
+                <div class="action-tile-btn" onclick="executeQuickAction('take screenshot')">
+                  <div class="action-tile-icon">📸</div>
+                  <div class="action-tile-title">Capture Screen</div>
+                  <div class="action-tile-desc">Save instantaneous desktop screenshot</div>
+                </div>
+
+                <div class="action-tile-btn" onclick="executeQuickAction('set volume to 50%')">
+                  <div class="action-tile-icon">🔊</div>
+                  <div class="action-tile-title">Audio Volume 50%</div>
+                  <div class="action-tile-desc">Adjust system master volume levels</div>
+                </div>
+
+                <div class="action-tile-btn" onclick="executeQuickAction('brightness up')">
+                  <div class="action-tile-icon">☀️</div>
+                  <div class="action-tile-title">Brightness Up</div>
+                  <div class="action-tile-desc">Increment display brightness by 15%</div>
+                </div>
+
+                <div class="action-tile-btn" onclick="executeQuickAction('minimize all windows')">
+                  <div class="action-tile-icon">💻</div>
+                  <div class="action-tile-title">Show Desktop</div>
+                  <div class="action-tile-desc">Minimize all applications cleanly</div>
+                </div>
+
+                <div class="action-tile-btn" onclick="switchView('voice')">
+                  <div class="action-tile-icon">⚛️</div>
+                  <div class="action-tile-title">Neural Reactor</div>
+                  <div class="action-tile-desc">Open living AI quantum core & voice stage</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Split Feed: Recent Directives & Live Telemetry Stream -->
+            <div class="dashboard-split-feed">
+              <div class="glass-card">
+                <div class="card-header-row">
+                  <div class="card-title-group">
+                    <span class="card-icon">💬</span>
+                    <div>
+                      <div class="card-title">Recent Conversations & Directives</div>
+                      <div class="card-subtitle">Real-time interaction log with JARVIS</div>
+                    </div>
+                  </div>
+                  <button class="btn-secondary" onclick="switchView('chat')">Open Full Chat</button>
+                </div>
+                <div class="recent-activity-list" id="dashboard-recent-chats">
+                  <div class="activity-item">
+                    <span class="activity-badge">SYSTEM</span>
+                    <span style="color: var(--text-secondary);">System initialized successfully. Ready for multimodal directives.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="glass-card">
+                <div class="card-header-row">
+                  <div class="card-title-group">
+                    <span class="card-icon">⚡</span>
+                    <div>
+                      <div class="card-title">EventBus Telemetry Stream</div>
+                      <div class="card-subtitle">Universal Orchestrator live events</div>
+                    </div>
+                  </div>
+                  <span class="pill-badge pill-cyan" id="eventbus-live-pill">CONNECTED</span>
+                </div>
+                <div class="recent-activity-list" id="dashboard-eventbus-stream">
+                  <div class="activity-item">
+                    <span class="activity-badge">READY</span>
+                    <span style="color: var(--text-muted);">Listening on WebSocket /ws/events</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 2: AI CHAT WORKSPACE
+             ================================================================ -->
+        <section class="workspace-view" id="view-chat">
+          <div class="chat-workspace-container">
+
+            <!-- Chat Sessions Sidebar -->
+            <aside class="chat-history-sidebar">
+              <button class="btn-primary" id="new-chat-btn" style="width: 100%; justify-content: center;">
+                <span>+</span> New Conversation
+              </button>
+              <div class="chat-sessions-list" id="chat-sessions-list">
+                <div class="chat-session-item active">
+                  <span>Current Directive Session</span>
+                </div>
+              </div>
+            </aside>
+
+            <!-- Main Interactive Chat Stage -->
+            <div class="chat-main-stage">
+              <div class="chat-stage-header">
+                <div>
+                  <strong style="color: var(--text-highlight); font-size: 14px;">JARVIS Neural Dialogue</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">FastAPI 11-Step Multimodal Agent Integration</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn-secondary" id="clear-chat-btn" title="Clear current stream">Clear Stream</button>
+                </div>
+              </div>
+
+              <!-- Message Stream Scroll Area -->
+              <div class="chat-messages-scroll" id="chat-stream">
+                <!-- Welcome Assistant Message -->
+                <div class="chat-entry assistant-entry">
+                  <div class="entry-avatar">J</div>
+                  <div class="entry-bubble">
+                    <div class="entry-meta-header">
+                      <span class="jarvis-tag">// JARVIS CORE</span>
+                      <span>ONLINE</span>
+                    </div>
+                    <p>Good day, Mahi. I am fully operational and listening. How may I assist your workflow today?</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Composer Box -->
+              <div class="chat-composer-box">
+                <form id="chat-form">
+                  <div class="composer-input-row">
+                    <textarea 
+                      class="chat-textarea" 
+                      id="user-input" 
+                      placeholder="Type a message or press Shift+Enter for newline (e.g. 'Set volume to 50%', 'Open Chrome')..." 
+                      rows="1"
+                    ></textarea>
+                    <div class="composer-actions">
+                      <button type="button" class="composer-btn composer-mic-btn" id="mic-btn" title="Toggle Voice Dictation">
+                        🎙️
+                      </button>
+                      <button type="submit" class="composer-btn composer-send-btn" id="send-btn" title="Send (Enter)">
+                        ↗
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 3: VOICE ASSISTANT (NEURAL REACTOR STAGE)
+             ================================================================ -->
+        <section class="workspace-view" id="view-voice">
+          <div class="voice-assistant-stage">
+            <div class="voice-stage-header-block">
+              <div class="stage-tagline">JARVIS V2 // QUANTUM VISUALIZATION ENGINE</div>
+              <h2 class="voice-stage-title">
+                Neural Reactor Core
+              </h2>
+              <p class="voice-stage-subtitle">
+                Living AI Orb with Real-Time Acoustic Spectral Resonance & Particle Recombination
+              </p>
+            </div>
+
+            <!-- Central Animated Neural Reactor Container -->
+            <div class="voice-orb-container" id="reactor-stage-container">
+              <div class="reactor-outer-halo"></div>
+              <div class="reactor-hud-ring ring-1"></div>
+              <div class="reactor-hud-ring ring-2"></div>
+              <canvas id="voice-core-canvas" class="voice-core-canvas" width="380" height="380"></canvas>
+            </div>
+
+            <!-- Reactive Voice Status Badge & Live Audio VU Meter -->
+            <div class="reactor-telemetry-row">
+              <div class="voice-state-badge idle" id="voice-stage-state-badge">
+                SYSTEM STANDBY
+              </div>
+              <div class="reactor-audio-meter" id="reactor-audio-meter" title="Live Microphone Spectral Input">
+                <span class="audio-meter-label">MIC INPUT</span>
+                <div class="audio-meter-track">
+                  <div class="audio-meter-bar" id="reactor-audio-bar" style="width: 0%;"></div>
+                </div>
+                <span class="audio-meter-db" id="reactor-audio-db">-- dB</span>
+              </div>
+            </div>
+
+            <!-- Signature States Interactive Showcase Toolbar (For Hackathon Demonstration) -->
+            <div class="reactor-state-switcher">
+              <span class="state-switcher-label">DEMO / STATE:</span>
+              <button type="button" class="state-demo-btn active" data-state="auto" id="btn-state-auto" title="Automatic live voice & system reactive state">⚡ Live Auto</button>
+              <button type="button" class="state-demo-btn" data-state="idle" id="btn-state-idle" title="Smooth celestial idle orbit">Standby</button>
+              <button type="button" class="state-demo-btn" data-state="listening" id="btn-state-listening" title="Neural pulse with microphone sound waves">Listening</button>
+              <button type="button" class="state-demo-btn" data-state="thinking" id="btn-state-thinking" title="Bubbles dissolve into evolving neural network">Thinking</button>
+              <button type="button" class="state-demo-btn" data-state="responding" id="btn-state-responding" title="Outward wave of light & accelerated particles">Responding</button>
+              <button type="button" class="state-demo-btn" data-state="error" id="btn-state-error" title="Agitated red pulse alert">Error</button>
+            </div>
+
+            <!-- Live Speech Transcription Box -->
+            <div class="voice-live-transcript-box" id="voice-live-transcript">
+              "Click the microphone button below or say 'Jarvis' to speak a directive..."
+            </div>
+
+            <!-- Voice Control Buttons -->
+            <div class="voice-action-controls">
+              <button class="voice-start-btn" id="voice-stage-toggle-btn" title="Toggle Live Microphone Stream & Speech Recognition">
+                🎙️
+              </button>
+              <button class="btn-secondary" id="voice-tts-toggle-btn">
+                <span>🔊 Voice Audio: ON</span>
+              </button>
+              <button class="btn-secondary" id="voice-replay-btn">
+                <span>🔁 Replay Last</span>
+              </button>
+            </div>
+
+            <!-- Voice Directive Examples -->
+            <div class="glass-card" style="width: 100%; text-align: left;">
+              <div class="card-title" style="margin-bottom: 12px;">Supported Voice Directives:</div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 12px; color: var(--text-secondary);">
+                <div>• "Jarvis, set volume to 60%"</div>
+                <div>• "Jarvis, what is my battery?"</div>
+                <div>• "Jarvis, brightness up"</div>
+                <div>• "Jarvis, minimize all windows"</div>
+                <div>• "Jarvis, open Notepad"</div>
+                <div>• "Jarvis, pause music"</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 4: TASKS & AUTOMATION
+             ================================================================ -->
+        <section class="workspace-view" id="view-tasks">
+          <div class="tasks-container">
+            <div>
+              <h2 style="font-size: 24px; font-weight: 700; color: var(--text-highlight); margin-bottom: 6px;">Tasks & Automation Center</h2>
+              <p style="color: var(--text-secondary); font-size: 13px;">Manage pending authorizations, orchestrator execution pipelines, and background daemons.</p>
+            </div>
+
+            <!-- Pending Authorizations Card -->
+            <div class="glass-card">
+              <div class="card-header-row">
+                <div class="card-title-group">
+                  <span class="card-icon">⚠️</span>
+                  <div>
+                    <div class="card-title">Pending Security Authorizations</div>
+                    <div class="card-subtitle">3-Tier Safety Gatekeeper protection layer</div>
+                  </div>
+                </div>
+                <button class="btn-secondary" onclick="refreshPendingTasks()">Refresh</button>
+              </div>
+              <div id="pending-tasks-container">
+                <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 24px 0;">
+                  No pending authorizations requiring approval. All systems secure.
+                </div>
+              </div>
+            </div>
+
+            <!-- Background Automation Services Card -->
+            <div class="glass-card">
+              <div class="card-header-row">
+                <div class="card-title-group">
+                  <span class="card-icon">⚡</span>
+                  <div>
+                    <div class="card-title">Background Daemons & Automation</div>
+                    <div class="card-subtitle">Continuous listening and desktop scripts</div>
+                  </div>
+                </div>
+              </div>
+              <table class="task-list-table">
+                <thead>
+                  <tr>
+                    <th>Service / Task</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>FastAPI Main Application</strong></td>
+                    <td>Asynchronous API Core</td>
+                    <td><span class="pill-badge pill-emerald">ONLINE</span></td>
+                    <td><span style="color: var(--text-muted);">Port 8000</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Background Voice Daemon</strong></td>
+                    <td>Headless Listener</td>
+                    <td><span class="pill-badge pill-cyan">READY</span></td>
+                    <td><button class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="testBackgroundVoice()">Check</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Silent Windows Startup</strong></td>
+                    <td>VBScript Automation</td>
+                    <td><span class="pill-badge pill-emerald">INSTALLED</span></td>
+                    <td><span style="color: var(--text-muted);">start_jarvis_silent.vbs</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 5: PROJECTS & WORKSPACE FILES
+             ================================================================ -->
+        <section class="workspace-view" id="view-projects">
+          <div class="workspace-grid-container">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <h2 style="font-size: 24px; font-weight: 700; color: var(--text-highlight); margin-bottom: 4px;">Projects & Workspace Files</h2>
+                <p style="color: var(--text-secondary); font-size: 13px;">Sandboxed workspace storage (`workspace_files/`) for screenshots, reports, and code.</p>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" onclick="refreshWorkspaceFiles()">Refresh Files</button>
+                <button class="btn-primary" onclick="openCreateFileModal()">+ New File</button>
+              </div>
+            </div>
+
+            <div class="file-cards-grid" id="workspace-files-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 6: MEMORY & PERSONALIZATION
+             ================================================================ -->
+        <section class="workspace-view" id="view-memory">
+          <div class="memory-workspace-container">
+            <div>
+              <h2 style="font-size: 24px; font-weight: 700; color: var(--text-highlight); margin-bottom: 6px;">Long-Term Memory Store</h2>
+              <p style="color: var(--text-secondary); font-size: 13px;">Transparent storage of extracted user preferences, facts, and working guidelines (`data/memory.json`).</p>
+            </div>
+
+            <div class="glass-card">
+              <form id="add-memory-form" style="display: flex; gap: 10px;">
+                <input 
+                  type="text" 
+                  class="search-input-pill" 
+                  id="new-memory-input" 
+                  placeholder="Record fact or preference: e.g. 'User prefers concise responses with bullet points'..." 
+                  style="border-radius: var(--radius-md);" 
+                />
+                <button type="submit" class="btn-primary" style="flex-shrink: 0;">Add Memory</button>
+              </form>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-header-row">
+                <div class="card-title">Retained Memories (<span id="memory-count">0</span>)</div>
+                <button class="btn-danger" onclick="clearAllMemories()">Clear All</button>
+              </div>
+              <div class="memory-facts-list" id="memory-facts-list">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 7: CONNECTED TOOLS REGISTRY
+             ================================================================ -->
+        <section class="workspace-view" id="view-tools">
+          <div class="tools-workspace-container">
+            <div>
+              <h2 style="font-size: 24px; font-weight: 700; color: var(--text-highlight); margin-bottom: 6px;">Connected Tools Registry</h2>
+              <p style="color: var(--text-secondary); font-size: 13px;">Extensible modular tool repository with parameter schemas and 3-tier risk classifications.</p>
+            </div>
+
+            <div class="tools-cards-grid" id="tools-cards-grid">
+              <!-- Dynamically populated from /api/tools -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 8: ACTIVITY HISTORY AUDIT
+             ================================================================ -->
+        <section class="workspace-view" id="view-history">
+          <div class="glass-card" style="max-width: 1100px; margin: 0 auto;">
+            <div class="card-header-row">
+              <div class="card-title-group">
+                <span class="card-icon">📜</span>
+                <div>
+                  <div class="card-title">Activity History & Audit Telemetry</div>
+                  <div class="card-subtitle">Chronological record of user directives and assistant responses</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" onclick="exportHistoryLog()">Export JSON</button>
+                <button class="btn-danger" onclick="clearHistoryLog()">Clear History</button>
+              </div>
+            </div>
+            <div class="recent-activity-list" id="history-audit-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================
+             WORKSPACE 9: SETTINGS & PREFERENCES
+             ================================================================ -->
+        <section class="workspace-view" id="view-settings">
+          <div class="settings-container">
+            <div>
+              <h2 style="font-size: 24px; font-weight: 700; color: var(--text-highlight); margin-bottom: 6px;">Settings & System Preferences</h2>
+              <p style="color: var(--text-secondary); font-size: 13px;">Configure operator identity, visual themes, sound effects, and API connections.</p>
+            </div>
+
+            <!-- Profile Settings -->
+            <div class="glass-card settings-group">
+              <div class="card-title">Operator Profile</div>
+              
+              <div class="setting-row">
+                <div class="setting-info-block">
+                  <div class="setting-title">Display Name</div>
+                  <div class="setting-desc">Primary name JARVIS uses to address you</div>
+                </div>
+                <input type="text" class="search-input-pill" id="settings-username-input" value="Mahi" style="max-width: 220px; border-radius: var(--radius-md);" />
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info-block">
+                  <div class="setting-title">Appearance Accent Color</div>
+                  <div class="setting-desc">Select visual UI accent lighting</div>
+                </div>
+                <div class="theme-swatches-row">
+                  <button class="theme-swatch-btn active" style="background: #00f0ff;" onclick="setThemeAccent('cyan')" title="Electric Cyan"></button>
+                  <button class="theme-swatch-btn" style="background: #38bdf8;" onclick="setThemeAccent('ice-blue')" title="Ice Blue"></button>
+                  <button class="theme-swatch-btn" style="background: #10b981;" onclick="setThemeAccent('emerald')" title="Emerald Neon"></button>
+                  <button class="theme-swatch-btn" style="background: #a855f7;" onclick="setThemeAccent('violet')" title="Celestial Violet"></button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info-block">
+                  <div class="setting-title">Sound Effects (SFX)</div>
+                  <div class="setting-desc">Play futuristic audio feedback on actions</div>
+                </div>
+                <button class="btn-secondary" id="toggle-sfx-btn" onclick="toggleSFX()">ENABLED</button>
+              </div>
+            </div>
+
+            <!-- AI Engine & Connectivity -->
+            <div class="glass-card settings-group">
+              <div class="card-title">AI Engine & Connectivity</div>
+              
+              <div class="setting-row">
+                <div class="setting-info-block">
+                  <div class="setting-title">Google Gemini API</div>
+                  <div class="setting-desc">Multimodal frontier intelligence (gemini-1.5-flash)</div>
+                </div>
+                <span class="pill-badge pill-cyan" id="settings-gemini-status">OFFLINE FALLBACK READY</span>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info-block">
+                  <div class="setting-title">FastAPI Backend Server</div>
+                  <div class="setting-desc">Host: 127.0.0.1:8000</div>
+                </div>
+                <span class="pill-badge pill-emerald">CONNECTED</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       GLOBAL MODALS & NOTIFICATION CONTAINERS
+       ==================================================================== -->
+
+  <!-- Security Action Authorization Modal -->
+  <div class="modal-overlay hidden" id="confirmation-modal">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: var(--status-amber);">
+        <span style="font-size: 24px;">⚠️</span>
+        <strong style="font-size: 16px; font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px;">SECURITY CONFIRMATION REQUIRED</strong>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;" id="modal-action-description">
+        An action classified as MEDIUM or HIGH risk requires operator authorization.
+      </p>
+      <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 12px; margin-bottom: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px;" id="modal-action-details">
+        <!-- Details populated dynamically -->
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-secondary" id="modal-reject-btn">Cancel Directive</button>
+        <button class="btn-primary" id="modal-approve-btn">Authorize & Execute</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Preview & Creation Modal -->
+  <div class="modal-overlay hidden" id="file-modal">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="card-header-row">
+        <div class="card-title" id="file-modal-title">File Inspector</div>
+        <button class="btn-secondary" style="padding: 4px 8px;" onclick="closeFileModal()">✕</button>
+      </div>
+      <div id="file-modal-body">
+        <!-- Dynamic content: image preview or code text area -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Vision Analysis Modal -->
+  <div class="modal-overlay hidden" id="vision-modal">
+    <div class="modal-card" style="max-width: 560px;">
+      <div class="card-header-row">
+        <div class="card-title">📷 Multimodal Optical Vision</div>
+        <button class="btn-secondary" style="padding: 4px 8px;" onclick="closeVisionModal()">✕</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <input type="file" id="vision-file-input" accept="image/*" class="search-input-pill" style="border-radius: var(--radius-md);" />
+        <input type="text" id="vision-prompt-input" class="search-input-pill" placeholder="Enter vision directive or question..." value="Describe this image in detail and identify any key objects or information." style="border-radius: var(--radius-md);" />
+        <button class="btn-primary" id="vision-analyze-btn" onclick="submitVisionAnalysis()">Analyze Image</button>
+        <div id="vision-result-box" style="display: none; background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 14px; font-size: 13px; line-height: 1.5;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notifications Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Application Controller Scripts -->
+  <script src="/static/app.js?v=2.0.0"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "gestures": [
+    {
+      "name": "OPEN_PALM",
+      "intent": "PAUSE",
+      "action": "pause_operation",
+      "description": "Pause current JARVIS operation or media"
+    },
+    {
+      "name": "THUMBS_UP",
+      "intent": "CONFIRM",
+      "action": "confirm_pending",
+      "description": "Confirm pending security authorization"
+    },
+    {
+      "name": "THUMBS_DOWN",
+      "intent": "CANCEL",
+      "action": "cancel_pending",
+      "description": "Cancel pending security authorization"
+    },
+    {
+      "name": "INDEX_FINGER",
+      "intent": "SELECT",
+      "action": "select_current",
+      "description": "Select currently focused HUD item"
+    },
+    {
+      "name": "TWO_FINGERS",
+      "intent": "NEXT",
+      "action": "next_item",
+      "description": "Move to next item or media track"
+    },
+    {
+      "name": "PINCH",
+      "intent": "VOLUME_CONTROL",
+      "action": "adjust_volume",
+      "description": "Adjust volume continuously based on pinch distance"
+    }
+  ]
+}

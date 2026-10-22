@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JARVIS Mobile Node — Vivo T4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #090503;
+      --amber: #f59e0b;
+      --amber-bright: #fbbf24;
+      --amber-glow: rgba(245, 158, 11, 0.4);
+      --card-bg: rgba(28, 16, 9, 0.85);
+      --border: rgba(245, 158, 11, 0.35);
+      --text: #fef3c7;
+      --text-muted: #d4a373;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.15) 0%, #090503 80%);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .logo-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      font-size: 24px;
+      filter: drop-shadow(0 0 8px var(--amber));
+    }
+    .title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--amber-bright);
+    }
+    .subtitle {
+      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text-muted);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #10b981;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 700;
+    }
+    .status-badge.offline {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 6px currentColor;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .card-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .device-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .info-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .info-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: 'Share Tech Mono', monospace;
+      text-transform: uppercase;
+    }
+    .info-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
+      font-family: 'Rajdhani', sans-serif;
+    }
+    .battery-bar-wrap {
+      margin-top: 12px;
+      background: rgba(255,255,255,0.08);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .battery-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b, #10b981);
+      width: 90%;
+      transition: width 0.4s ease;
+    }
+
+    .directive-box {
+      border: 1px dashed var(--amber);
+      background: rgba(245, 158, 11, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+    .directive-box.active {
+      display: block;
+      animation: alertPulse 1.2s infinite;
+    }
+    @keyframes alertPulse {
+      0%, 100% { border-color: var(--amber); }
+      50% { border-color: #fbbf24; box-shadow: 0 0 15px rgba(245,158,11,0.3); }
+    }
+    .directive-header {
+      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--amber-bright);
+      margin-bottom: 6px;
+    }
+    .directive-desc {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .btn-call {
+      background: #10b981;
+      color: #042f1a;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+    .btn-sms {
+      background: #38bdf8;
+      color: #082f49;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+    .btn-sync {
+      background: var(--amber);
+      color: #271404;
+      margin-top: 10px;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    .stream-log {
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: rgba(254, 243, 199, 0.85);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .log-item {
+      padding: 6px 8px;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid var(--amber);
+      border-radius: 4px;
+    }
+    .footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text-muted);
+      padding: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-box">
+      <span class="logo-icon">📱</span>
+      <div>
+        <div class="title">JARVIS MOBILE // NODE</div>
+        <div class="subtitle">DEVICE: VIVO T4 (PAIRED)</div>
+      </div>
+    </div>
+    <div class="status-badge" id="net-status">
+      <span class="pulse-dot"></span>
+      <span id="net-text">SYNCED</span>
+    </div>
+  </header>
+
+  <!-- Telemetry Card -->
+  <section class="card">
+    <div class="card-title">
+      <span>HARDWARE TELEMETRY</span>
+      <span style="font-family:'Share Tech Mono'; font-size:10px;">ID: VIVO-T4-MAHI</span>
+    </div>
+    <div class="device-info-grid">
+      <div class="info-box">
+        <div class="info-label">PHONE MODEL</div>
+        <div class="info-val" id="model-val">Vivo T4</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">BATTERY LEVEL</div>
+        <div class="info-val" id="battery-val">--%</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">CHARGING STATE</div>
+        <div class="info-val" id="charging-val">CHECKING</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">LINK LATENCY</div>
+        <div class="info-val" id="latency-val">4ms</div>
+      </div>
+    </div>
+    <div class="battery-bar-wrap">
+      <div class="battery-bar" id="battery-bar" style="width: 80%;"></div>
+    </div>
+    <button class="btn btn-sync" id="sync-battery-btn">⚡ Force Battery Sync to Laptop</button>
+  </section>
+
+  <!-- Active Inbound Directive from JARVIS -->
+  <section class="directive-box" id="directive-box">
+    <div class="directive-header">⚠️ INBOUND COMMAND FROM LAPTOP JARVIS:</div>
+    <div class="directive-desc" id="directive-desc">Initiating call to Mom...</div>
+    <a href="#" class="btn btn-call" id="action-trigger-btn">📞 TAP TO DIAL MOM NOW</a>
+  </section>
+
+  <!-- Live Activity Log -->
+  <section class="card" style="flex:1;">
+    <div class="card-title">LIVE EVENT STREAM</div>
+    <div class="stream-log" id="stream-log">
+      <div class="log-item">[00:00:00] Vivo T4 companion node initialized.</div>
+      <div class="log-item">[00:00:01] Connected to laptop JARVIS neural hub.</div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    JARVIS MOBILE CONNECTOR &bull; VIVO T4 AUTHENTICATED
+  </footer>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let ws = null;
+    let currentBattery = 90;
+    let isCharging = false;
+
+    const netStatus = document.getElementById("net-status");
+    const netText = document.getElementById("net-text");
+    const batteryVal = document.getElementById("battery-val");
+    const chargingVal = document.getElementById("charging-val");
+    const batteryBar = document.getElementById("battery-bar");
+    const directiveBox = document.getElementById("directive-box");
+    const directiveDesc = document.getElementById("directive-desc");
+    const actionTriggerBtn = document.getElementById("action-trigger-btn");
+    const streamLog = document.getElementById("stream-log");
+    const syncBatteryBtn = document.getElementById("sync-battery-btn");
+
+    function addLog(msg) {
+      const time = new Date().toTimeString().split(" ")[0];
+      const div = document.createElement("div");
+      div.className = "log-item";
+      div.textContent = `[${time}] ${msg}`;
+      streamLog.appendChild(div);
+      streamLog.scrollTop = streamLog.scrollHeight;
+    }
+
+    // Read real battery from Vivo T4
+    async function syncRealBattery() {
+      try {
+        if ("getBattery" in navigator) {
+          const battery = await navigator.getBattery();
+          currentBattery = Math.round(battery.level * 100);
+          isCharging = battery.charging;
+
+          battery.addEventListener("levelchange", () => syncRealBattery());
+          battery.addEventListener("chargingchange", () => syncRealBattery());
+        }
+      } catch (err) {
+        console.warn("Battery API unavailable, using status API:", err);
+      }
+
+      batteryVal.textContent = `${currentBattery}%`;
+      chargingVal.textContent = isCharging ? "CHARGING ⚡" : "DISCHARGING";
+      batteryBar.style.width = `${currentBattery}%`;
+
+      // Transmit to JARVIS backend
+      try {
+        await fetch(`${API_BASE}/api/phone/set-device`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "Vivo T4",
+            battery: currentBattery,
+            charging: isCharging
+          })
+        });
+        addLog(`Transmitted Vivo T4 battery (${currentBattery}%) to JARVIS HUD.`);
+      } catch (err) {
+        console.warn("Sync error:", err);
+      }
+    }
+
+    // Connect WebSocket for live directives from laptop
+    function connectWebSocket() {
+      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${proto}//${window.location.host}/ws/events`;
+
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          netStatus.className = "status-badge";
+          netText.textContent = "SYNCED";
+          addLog("WebSocket linked to laptop JARVIS.");
+        };
+        ws.onmessage = (evt) => {
+          try {
+            const data = JSON.parse(evt.data);
+            handleIncomingEvent(data);
+          } catch (e) {}
+        };
+        ws.onclose = () => {
+          netStatus.className = "status-badge offline";
+          netText.textContent = "OFFLINE";
+          setTimeout(connectWebSocket, 3000);
+        };
+      } catch (err) {
+        setTimeout(connectWebSocket, 3000);
+      }
+    }
+
+    function handleIncomingEvent(data) {
+      if (data.event === "TOOL_EXECUTION") {
+        const tool = data.tool || "";
+        const args = data.arguments || {};
+
+        if (tool === "phone.call_contact") {
+          const contact = args.contact || "Unknown";
+          directiveDesc.textContent = `Directive: Call ${contact}`;
+          actionTriggerBtn.href = `tel:${encodeURIComponent(contact)}`;
+          actionTriggerBtn.textContent = `📞 TAP TO DIAL ${contact.toUpperCase()}`;
+          actionTriggerBtn.className = "btn btn-call";
+          directiveBox.classList.add("active");
+          addLog(`Inbound Call Directive: ${contact}`);
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        } else if (tool === "phone.send_sms") {
+          const contact = args.contact || "";
+          const msg = args.message || "";
+          directiveDesc.textContent = `Directive: Send SMS to ${contact}`;
+          actionTriggerBtn.href = `sms:${encodeURIComponent(contact)}?body=${encodeURIComponent(msg)}`;
+          actionTriggerBtn.textContent = `💬 TAP TO SEND SMS NOW`;
+          actionTriggerBtn.className = "btn btn-sms";
+          directiveBox.classList.add("active");
+          addLog(`Inbound SMS Directive: ${contact} - "${msg}"`);
+          if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+        }
+      } else if (data.event === "STATUS_UPDATE") {
+        if (data.message && data.message.includes("Vivo T4")) {
+          addLog(data.message);
+        }
+      }
+    }
+
+    syncBatteryBtn.addEventListener("click", () => {
+      syncRealBattery();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      syncRealBattery();
+      connectWebSocket();
+      setInterval(syncRealBattery, 30000); // Sync every 30s
+    });
+  </script>
+</body>
+</html>

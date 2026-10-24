@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "py -3.12 backend/main.py",
     "start": "py -3.12 backend/main.py",
-    "build": "node -e \"console.log('JARVIS V2 Production Frontend Assets Validated.')\"",
+    "build": "vite build",
     "lint": "node -e \"console.log('JARVIS V2 Lint Check: 0 errors, 0 warnings.')\"",
     "test": "py -3.12 backend/test_upgrade_verification.py"
   },
